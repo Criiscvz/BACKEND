@@ -22,7 +22,7 @@ export class Pedido {
   @Column({ name: 'estado_id' })
   estadoId: number;
 
-  @ManyToOne(() => Estado)
+  @ManyToOne(() => Estado, (estado) => estado.pedidos)
   @JoinColumn({ name: 'estado_id' })
   estado: Estado;
 

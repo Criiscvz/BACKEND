@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Pedido } from '../../pedidos/entities/pedido.entity';
 
 @Entity('estado')
 export class Estado {
@@ -10,4 +11,7 @@ export class Estado {
 
   @Column({ length: 50 })
   tipo: string;
+
+  @OneToMany(() => Pedido, (pedido) => pedido.estado)
+  pedidos: Pedido[];
 }
