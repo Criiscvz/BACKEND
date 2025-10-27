@@ -14,4 +14,16 @@ export class UsuarioService {
     const newUsuario = this.userRepository.create(usuario);
     return this.userRepository.save(newUsuario);
   }
+  getUsuarios(usuario: CreateUsuarioDto): Promise<Usuario[]> {
+   return this.userRepository.find({ where: { correoElectronico: usuario.correoElectronico } });
+  }
+  getUsuario(id: number) {
+    return this.userRepository.findOne({ 
+      where: { usuarioId: id }
+    });
+  }
+  deleteUsuario(id: number) {
+   return this.userRepository.delete({ usuarioId: id });
+  }
 }
+

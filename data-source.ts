@@ -21,7 +21,7 @@ export const AppDataSource = new DataSource({
   host: process.env.DB_HOST ?? 'localhost',
   port: +(process.env.DB_PORT ?? 5432),
   username: process.env.DB_USER ?? 'postgres',
-  password: process.env.DB_PASS ?? 'post123',
+  password: process.env.DB_PASS ?? '123',
   database: process.env.DB_NAME ?? 'Inovarte',
   entities: [
     Rol,
