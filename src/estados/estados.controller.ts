@@ -2,33 +2,34 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { EstadosService } from './estados.service';
 import { CreateEstadoDto } from './dto/create-estado.dto';
 import { UpdateEstadoDto } from './dto/update-estado.dto';
+import { Estado } from './entities/estado.entity';
 
 @Controller('estados')
 export class EstadosController {
   constructor(private readonly estadosService: EstadosService) {}
 
   @Post()
-  create(@Body() createEstadoDto: CreateEstadoDto) {
-    return this.estadosService.create(createEstadoDto);
+  createEstado(@Body() createEstadoDto: CreateEstadoDto): Promise<Estado> {
+    return this.estadosService.createEstado(createEstadoDto);
   }
 
   @Get()
-  findAll() {
-    return this.estadosService.findAll();
+  getEstados(@Body() createEstadoDto: CreateEstadoDto): Promise<Estado[]> {
+    return this.estadosService.getEstados(createEstadoDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.estadosService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEstadoDto: UpdateEstadoDto) {
-    return this.estadosService.update(+id, updateEstadoDto);
+  getEstado(@Param('id') id: number): Promise<Estado | null> {
+    return this.estadosService.getEstado(id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.estadosService.remove(+id);
+  deleteEstado(@Param('id') id: number) {
+    return this.estadosService.deleteEstado(id);
+  }
+
+  @Patch(':id')
+  updateEstado(@Param('id') id: number, @Body() updateEstadoDto: UpdateEstadoDto): Promise<Estado> {
+    return this.estadosService.updateEstado(id, updateEstadoDto);
   }
 }

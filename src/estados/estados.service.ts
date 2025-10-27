@@ -1,26 +1,35 @@
 import { Injectable } from '@nestjs/common';
+import { Estado } from './entities/estado.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateEstadoDto } from './dto/create-estado.dto';
 import { UpdateEstadoDto } from './dto/update-estado.dto';
 
 @Injectable()
 export class EstadosService {
-  create(createEstadoDto: CreateEstadoDto) {
-    return 'This action adds a new estado';
+  
+  constructor(@InjectRepository(Estado) private estadosRepository: Repository<Estado>) {}
+
+  createEstado(estado: CreateEstadoDto): Promise<Estado> {
+    const newEstado = this.estadosRepository.create(estado);  
+    return this.estadosRepository.save(newEstado);
   }
 
-  findAll() {
-    return `This action returns all estados`;
+  getEstados(estado: CreateEstadoDto): Promise<Estado[]> {
+   return this.estadosRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} estado`;
+  getEstado(id: number){
+    return this.estadosRepository.findOne({ 
+      where: { estadoId: id }
+    });
   }
 
-  update(id: number, updateEstadoDto: UpdateEstadoDto) {
-    return `This action updates a #${id} estado`;
+  deleteEstado(id: number) {
+   return this.estadosRepository.delete({ estadoId: id });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} estado`;
+  updateEstado(id: number, estado: UpdateEstadoDto): Promise<Estado> {
+    return this.estadosRepository.save({ ...estado, estadoId: id });
   }
 }

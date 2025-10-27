@@ -23,7 +23,7 @@ import { HistorialModule } from './historial/historial.module';
       host: 'localhost',       // o el nombre del contenedor si usas Docker
       port: 5432,
       username: 'postgres',
-      password: '123',
+      password: 'post123',
       database: 'Inovarte',
       autoLoadEntities: true,
       synchronize: false,      // ⚠️ No usar en producción, solo en desarrollo si lo necesitas
