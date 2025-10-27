@@ -14,8 +14,8 @@ export class UsuarioService {
     const newUsuario = this.userRepository.create(usuario);
     return this.userRepository.save(newUsuario);
   }
-  getUsuarios(usuario: CreateUsuarioDto): Promise<Usuario[]> {
-   return this.userRepository.find({ where: { correoElectronico: usuario.correoElectronico } });
+  getUsuarios() {
+   return this.userRepository.find();
   }
   getUsuario(id: number) {
     return this.userRepository.findOne({ 
@@ -24,6 +24,9 @@ export class UsuarioService {
   }
   deleteUsuario(id: number) {
    return this.userRepository.delete({ usuarioId: id });
+  }
+  updateUsuario(id: number, updateUsuarioDto: UpdateUsuarioDto) {
+    return this.userRepository.update({ usuarioId: id }, updateUsuarioDto);
   }
 }
 
