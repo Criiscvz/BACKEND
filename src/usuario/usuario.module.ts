@@ -11,5 +11,6 @@ import { Direccion } from 'src/direcciones/entities/direccion.entity';
   imports: [TypeOrmModule.forFeature([Usuario, Rol, Pedido, Direccion])],
   controllers: [UsuarioController],
   providers: [UsuarioService],
+  exports: [UsuarioService],
 })
 export class UsuarioModule {}
