@@ -15,6 +15,7 @@ import { PedidosModule } from './pedidos/pedidos.module';
 import { FacturasModule } from './facturas/facturas.module';
 import { DevolucionesModule } from './devoluciones/devoluciones.module';
 import { HistorialModule } from './historial/historial.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { HistorialModule } from './historial/historial.module';
       host: 'localhost',       // o el nombre del contenedor si usas Docker
       port: 5432,
       username: 'postgres',
-      password: '123',
+      password: 'post123',
       database: 'Inovarte',
       autoLoadEntities: true,
       synchronize: false,      // ⚠️ No usar en producción, solo en desarrollo si lo necesitas
@@ -39,6 +40,7 @@ import { HistorialModule } from './historial/historial.module';
     FacturasModule,
     DevolucionesModule,
     HistorialModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
