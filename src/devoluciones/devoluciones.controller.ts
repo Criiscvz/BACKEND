@@ -1,34 +1,36 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, ParseIntPipe, Delete, Put } from '@nestjs/common';
 import { DevolucionesService } from './devoluciones.service';
 import { CreateDevolucioneDto } from './dto/create-devolucione.dto';
 import { UpdateDevolucioneDto } from './dto/update-devolucione.dto';
+import { Devolucion } from './entities/devolucione.entity';
 
 @Controller('devoluciones')
 export class DevolucionesController {
-  constructor(private readonly devolucionesService: DevolucionesService) {}
 
-  @Post()
-  create(@Body() createDevolucioneDto: CreateDevolucioneDto) {
-    return this.devolucionesService.create(createDevolucioneDto);
+  constructor(private devolucionesService: DevolucionesService) {}
+
+  @Post() 
+  createDevolucion(@Body() createDevolucioneDto: CreateDevolucioneDto): Promise<Devolucion> {
+    return this.devolucionesService.createDevolucion(createDevolucioneDto);
   }
 
   @Get()
-  findAll() {
-    return this.devolucionesService.findAll();
+  getDevoluciones(): Promise<Devolucion[]> {
+    return this.devolucionesService.getDevoluciones();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.devolucionesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDevolucioneDto: UpdateDevolucioneDto) {
-    return this.devolucionesService.update(+id, updateDevolucioneDto);
+  getDevolucion(@Param('id', ParseIntPipe) id: number): Promise<Devolucion | null> {
+    return this.devolucionesService.getDevolucion(id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.devolucionesService.remove(+id);
+  deleteDevolucion(@Param('id', ParseIntPipe) id: number) {
+    return this.devolucionesService.deleteDevolucion(id);
+  }
+
+  @Put(':id')
+  updateDevolucion(@Param('id', ParseIntPipe) id: number, @Body() updateDevolucioneDto: UpdateDevolucioneDto) {
+    return this.devolucionesService.updateDevolucion(id, updateDevolucioneDto);
   }
 }
