@@ -12,12 +12,12 @@ export class RegistroDto {
     apellido: string;  
 
     @IsEmail()
-    correoElectronico: string;  // Cambiar de 'email'
+    correoElectronico: string;
 
     @Transform(({ value }) => value.trim())
     @IsString()
     @MinLength(6)
-    contrasenaFriada: string;   // Cambiar de 'password'
+    contrasenaFriada: string;
 
     @IsOptional()
     @IsString()
