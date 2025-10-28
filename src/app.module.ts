@@ -16,6 +16,8 @@ import { FacturasModule } from './facturas/facturas.module';
 import { DevolucionesModule } from './devoluciones/devoluciones.module';
 import { HistorialModule } from './historial/historial.module';
 import { AuthModule } from './auth/auth.module';
+import { DetallePedidosModule } from './pedidos/detalle-pedidos.module';
+import { DetalleFacturasModule } from './facturas/detalle-facturas.module';
 
 @Module({
   imports: [
@@ -41,6 +43,8 @@ import { AuthModule } from './auth/auth.module';
     DevolucionesModule,
     HistorialModule,
     AuthModule,
+    DetallePedidosModule,
+    DetalleFacturasModule,
   ],
   controllers: [AppController],
   providers: [AppService],

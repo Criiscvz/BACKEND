@@ -1,34 +1,37 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, ParseIntPipe, Delete, Put } from '@nestjs/common';
 import { DireccionesService } from './direcciones.service';
-import { CreateDireccioneDto } from './dto/create-direccione.dto';
-import { UpdateDireccioneDto } from './dto/update-direccione.dto';
+import { CreateDireccionDto } from './dto/create-direccion.dto';
+import { UpdateDireccionDto } from './dto/update-direccion.dto';
+import { Direccion } from './entities/direccion.entity';
 
 @Controller('direcciones')
 export class DireccionesController {
-  constructor(private readonly direccionesService: DireccionesService) {}
+
+  constructor(private direccionesService: DireccionesService) {}
 
   @Post()
-  create(@Body() createDireccioneDto: CreateDireccioneDto) {
-    return this.direccionesService.create(createDireccioneDto);
+  createDireccion(@Body() createDireccionDto: CreateDireccionDto): Promise<Direccion> {
+    return this.direccionesService.createDireccion(createDireccionDto);
   }
 
   @Get()
-  findAll() {
-    return this.direccionesService.findAll();
+  getDirecciones(): Promise<Direccion[]> {
+    return this.direccionesService.getDirecciones();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.direccionesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDireccioneDto: UpdateDireccioneDto) {
-    return this.direccionesService.update(+id, updateDireccioneDto);
+  getDireccion(@Param('id', ParseIntPipe) id: number): Promise<Direccion | null> {
+    return this.direccionesService.getDireccion(id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.direccionesService.remove(+id);
+  deleteDireccion(@Param('id', ParseIntPipe) id: number) {
+    return this.direccionesService.deleteDireccion(id);
   }
+
+  @Put(':id')
+  updateDireccion(@Param('id', ParseIntPipe) id: number, @Body() updateDireccionDto: UpdateDireccionDto) {
+    return this.direccionesService.updateDireccion(id, updateDireccionDto);
+  }
+
 }
