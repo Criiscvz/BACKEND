@@ -1,26 +1,40 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Factura } from './entities/factura.entity';
 import { CreateFacturaDto } from './dto/create-factura.dto';
 import { UpdateFacturaDto } from './dto/update-factura.dto';
 
 @Injectable()
 export class FacturasService {
-  create(createFacturaDto: CreateFacturaDto) {
-    return 'This action adds a new factura';
+  constructor(
+    @InjectRepository(Factura)
+    private facturaRepository: Repository<Factura>,
+  ) {}
+
+  createFactura(factura: CreateFacturaDto): Promise<Factura> {
+    const newFactura = this.facturaRepository.create(factura);
+    return this.facturaRepository.save(newFactura);
   }
 
-  findAll() {
-    return `This action returns all facturas`;
+  getFacturas() {
+    return this.facturaRepository.find({
+      relations: ['pedido', 'estado', 'detalles', 'devoluciones'],
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} factura`;
+  getFactura(id: number) {
+    return this.facturaRepository.findOne({
+      where: { facturaId: id },
+      relations: ['pedido', 'estado', 'detalles', 'devoluciones'],
+    });
   }
 
-  update(id: number, updateFacturaDto: UpdateFacturaDto) {
-    return `This action updates a #${id} factura`;
+  deleteFactura(id: number) {
+    return this.facturaRepository.delete({ facturaId: id });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} factura`;
+  updateFactura(id: number, updateFacturaDto: UpdateFacturaDto) {
+    return this.facturaRepository.update({ facturaId: id }, updateFacturaDto);
   }
 }

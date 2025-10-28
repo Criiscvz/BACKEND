@@ -1,26 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { CreateHistorialDto } from './dto/create-historial.dto';
 import { UpdateHistorialDto } from './dto/update-historial.dto';
+import { Historial } from './entities/historial.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class HistorialService {
-  create(createHistorialDto: CreateHistorialDto) {
-    return 'This action adds a new historial';
-  }
 
-  findAll() {
-    return `This action returns all historial`;
-  }
+  constructor(@InjectRepository(Historial) private historialRepository: Repository <Historial>) {}
 
-  findOne(id: number) {
-    return `This action returns a #${id} historial`;
-  }
-
-  update(id: number, updateHistorialDto: UpdateHistorialDto) {
-    return `This action updates a #${id} historial`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} historial`;
-  }
+    createHistorial(historial: CreateHistorialDto): Promise<Historial> {
+      const newHistorial = this.historialRepository.create(historial);
+      return this.historialRepository.save(newHistorial);
+    }
+    getHistoriales() {
+     return this.historialRepository.find();
+    }
+    getHistorial(id: number) {
+      return this.historialRepository.findOne({ 
+        where: { historialId: id }
+      });
+    }
+    deleteHistorial(id: number) {
+     return this.historialRepository.delete({ historialId: id });
+    }
+    updateHistorial(id: number, updateHistorialDto: UpdateHistorialDto) {
+      return this.historialRepository.update({ historialId: id }, updateHistorialDto);
+    }
 }

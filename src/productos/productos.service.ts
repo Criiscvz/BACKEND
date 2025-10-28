@@ -6,30 +6,26 @@ import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
 
 @Injectable()
-export class ProductosService {
+export class ProductoService {
 
-  constructor(@InjectRepository(Producto)private productosRepository: Repository<Producto>,) {}
+  constructor(@InjectRepository(Producto) private productoRepository: Repository<Producto>) {}
 
   createProducto(producto: CreateProductoDto): Promise<Producto> {
-    const newProducto = this.productosRepository.create(producto);  
-    return this.productosRepository.save(newProducto);
+    const newProducto = this.productoRepository.create(producto);
+    return this.productoRepository.save(newProducto);
   }
-
-  getProductos(producto: CreateProductoDto): Promise<Producto[]> {
-   return this.productosRepository.find();
+  getProductos() {
+   return this.productoRepository.find();
   }
-
-  getProducto(id: number){
-    return this.productosRepository.findOne({ 
+  getProducto(id: number) {
+    return this.productoRepository.findOne({ 
       where: { productoId: id }
     });
   }
-
   deleteProducto(id: number) {
-   return this.productosRepository.delete({ productoId: id });
+   return this.productoRepository.delete({ productoId: id });
   }
-
-  updateProducto(id: number, producto: UpdateProductoDto): Promise<Producto> {
-    return this.productosRepository.save({ ...producto, productoId: id });
+  updateProducto(id: number, updateProductoDto: UpdateProductoDto) {
+    return this.productoRepository.update({ productoId: id }, updateProductoDto);
   }
 }

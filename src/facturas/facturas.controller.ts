@@ -1,34 +1,35 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { FacturasService } from './facturas.service';
 import { CreateFacturaDto } from './dto/create-factura.dto';
 import { UpdateFacturaDto } from './dto/update-factura.dto';
+import { Factura } from './entities/factura.entity';
 
 @Controller('facturas')
 export class FacturasController {
   constructor(private readonly facturasService: FacturasService) {}
 
   @Post()
-  create(@Body() createFacturaDto: CreateFacturaDto) {
-    return this.facturasService.create(createFacturaDto);
+  createFactura(@Body() createFacturaDto: CreateFacturaDto): Promise<Factura> {
+    return this.facturasService.createFactura(createFacturaDto);
   }
 
   @Get()
-  findAll() {
-    return this.facturasService.findAll();
+  getFacturas(): Promise<Factura[]> {
+    return this.facturasService.getFacturas();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.facturasService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFacturaDto: UpdateFacturaDto) {
-    return this.facturasService.update(+id, updateFacturaDto);
+  getFactura(@Param('id', ParseIntPipe) id: number): Promise<Factura | null> {
+    return this.facturasService.getFactura(id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.facturasService.remove(+id);
+  deleteFactura(@Param('id', ParseIntPipe) id: number) {
+    return this.facturasService.deleteFactura(id);
+  }
+
+  @Put(':id')
+  updateFactura(@Param('id', ParseIntPipe) id: number, @Body() updateFacturaDto: UpdateFacturaDto) {
+    return this.facturasService.updateFactura(id, updateFacturaDto);
   }
 }

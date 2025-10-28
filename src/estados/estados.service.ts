@@ -6,30 +6,26 @@ import { CreateEstadoDto } from './dto/create-estado.dto';
 import { UpdateEstadoDto } from './dto/update-estado.dto';
 
 @Injectable()
-export class EstadosService {
-  
-  constructor(@InjectRepository(Estado) private estadosRepository: Repository<Estado>) {}
+export class EstadoService {
 
-  createEstado(estado: CreateEstadoDto): Promise<Estado> {
-    const newEstado = this.estadosRepository.create(estado);  
-    return this.estadosRepository.save(newEstado);
-  }
+  constructor(@InjectRepository(Estado) private estadoRepository: Repository <Estado>) {}
 
-  getEstados(estado: CreateEstadoDto): Promise<Estado[]> {
-   return this.estadosRepository.find();
-  }
-
-  getEstado(id: number){
-    return this.estadosRepository.findOne({ 
-      where: { estadoId: id }
-    });
-  }
-
-  deleteEstado(id: number) {
-   return this.estadosRepository.delete({ estadoId: id });
-  }
-
-  updateEstado(id: number, estado: UpdateEstadoDto): Promise<Estado> {
-    return this.estadosRepository.save({ ...estado, estadoId: id });
-  }
+    createEstado(estado: CreateEstadoDto): Promise<Estado> {
+      const newEstado = this.estadoRepository.create(estado);
+      return this.estadoRepository.save(newEstado);
+    }
+    getEstados() {
+     return this.estadoRepository.find();
+    }
+    getEstado(id: number) {
+      return this.estadoRepository.findOne({ 
+        where: { estadoId: id }
+      });
+    }
+    deleteEstado(id: number) {
+     return this.estadoRepository.delete({ estadoId: id });
+    }
+    updateEstado(id: number, updateEstadoDto: UpdateEstadoDto) {
+      return this.estadoRepository.update({ estadoId: id }, updateEstadoDto);
+    }
 }

@@ -1,26 +1,38 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Variante } from './entities/variante.entity';
 import { CreateVarianteDto } from './dto/create-variante.dto';
 import { UpdateVarianteDto } from './dto/update-variante.dto';
 
 @Injectable()
 export class VariantesService {
-  create(createVarianteDto: CreateVarianteDto) {
-    return 'This action adds a new variante';
+  constructor(
+    @InjectRepository(Variante)
+    private varianteRepository: Repository<Variante>,
+  ) {}
+
+  createVariante(variante: CreateVarianteDto): Promise<Variante> {
+    const newVariante = this.varianteRepository.create(variante);
+    return this.varianteRepository.save(newVariante);
   }
 
-  findAll() {
-    return `This action returns all variantes`;
+  getVariantes() {
+    return this.varianteRepository.find({ relations: ['producto'] });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} variante`;
+  getVariante(id: number) {
+    return this.varianteRepository.findOne({
+      where: { varianteId: id },
+      relations: ['producto'],
+    });
   }
 
-  update(id: number, updateVarianteDto: UpdateVarianteDto) {
-    return `This action updates a #${id} variante`;
+  deleteVariante(id: number) {
+    return this.varianteRepository.delete({ varianteId: id });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} variante`;
+  updateVariante(id: number, updateVarianteDto: UpdateVarianteDto) {
+    return this.varianteRepository.update({ varianteId: id }, updateVarianteDto);
   }
 }

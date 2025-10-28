@@ -1,26 +1,40 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Pedido } from './entities/pedido.entity';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
 
 @Injectable()
 export class PedidosService {
-  create(createPedidoDto: CreatePedidoDto) {
-    return 'This action adds a new pedido';
+  constructor(
+    @InjectRepository(Pedido)
+    private pedidoRepository: Repository<Pedido>,
+  ) {}
+
+  createPedido(pedido: CreatePedidoDto): Promise<Pedido> {
+    const newPedido = this.pedidoRepository.create(pedido);
+    return this.pedidoRepository.save(newPedido);
   }
 
-  findAll() {
-    return `This action returns all pedidos`;
+  getPedidos() {
+    return this.pedidoRepository.find({
+      relations: ['usuario', 'estado', 'detalles', 'factura'],
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} pedido`;
+  getPedido(id: number) {
+    return this.pedidoRepository.findOne({
+      where: { pedidoId: id },
+      relations: ['usuario', 'estado', 'detalles', 'factura'],
+    });
   }
 
-  update(id: number, updatePedidoDto: UpdatePedidoDto) {
-    return `This action updates a #${id} pedido`;
+  deletePedido(id: number) {
+    return this.pedidoRepository.delete({ pedidoId: id });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} pedido`;
+  updatePedido(id: number, updatePedidoDto: UpdatePedidoDto) {
+    return this.pedidoRepository.update({ pedidoId: id }, updatePedidoDto);
   }
 }
