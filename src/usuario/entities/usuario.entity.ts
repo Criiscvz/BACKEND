@@ -26,7 +26,8 @@ export class Usuario {
   @Column({ name: 'estado_cuenta', type: 'boolean', default: true })
   estadoCuenta: boolean;
 
-  @Column({ name: 'rol_id' })
+  
+  @Column({ name: 'rol_id', default: 1 })
   rolId: number;
 
   @ManyToOne(() => Rol, (rol) => rol.usuarios)

@@ -1,29 +1,35 @@
 import { Transform } from 'class-transformer';
-import { IsString, IsEmail, MinLength, IsOptional } from 'class-validator';
+import { IsString, IsEmail, MinLength, IsOptional, IsNotEmpty, IsInt } from 'class-validator';
+import { Column } from 'typeorm';
 
 export class RegistroDto {
 
-    @IsString()
-    @MinLength(1)
-    nombre: string;
+  @IsString()
+  @MinLength(1)
+  nombre: string;
 
-    @IsString()
-    @MinLength(1)
-    apellido: string;  
+  @IsString()
+  @MinLength(1)
+  apellido: string;
 
-    @IsEmail()
-    correoElectronico: string;
+  @IsEmail()
+  correoElectronico: string;
 
-    @Transform(({ value }) => value.trim())
-    @IsString()
-    @MinLength(6)
-    contrasenaFriada: string;
+  @Transform(({ value }) => value.trim())
+  @IsString()
+  @MinLength(6)
+  contrasenaFriada: string;
 
-    @IsOptional()
-    @IsString()
-    telefono?: string;
+  @IsOptional()
+  @IsString()
+  telefono?: string;
 
-    rolId: number;
-    usuarioCreaId: number; 
-    estadoCuenta: boolean;
+  @IsInt()
+  @IsNotEmpty()
+  usuarioCreaId: number;
+
+  @IsOptional()
+  @IsInt()
+  rolId: number;
+
 }

@@ -9,6 +9,7 @@ export class UsuarioController {
 
   constructor(private usuarioService: UsuarioService) { }
   
+  //crud basico 
   @Post()
   createUsuario(@Body() createUsuarioDto: CreateUsuarioDto): Promise<Usuario> {
     return this.usuarioService.createUsuario(createUsuarioDto);
@@ -29,6 +30,13 @@ export class UsuarioController {
   @Put(':id')
   updateUsuario(@Param('id', ParseIntPipe) id: number, @Body() updateUsuarioDto: UpdateUsuarioDto) {
     return this.usuarioService.updateUsuario(id, updateUsuarioDto);
+  }
+
+  
+  //consultar usuario por correo electronico
+  @Get('correo/:correoElectronico')
+  getUsuarioByCorreoElectronico(@Param('correoElectronico') correoElectronico: string): Promise<Usuario | null> {
+    return this.usuarioService.getUsuarioByCorreoElectronico(correoElectronico);
   }
   
 }

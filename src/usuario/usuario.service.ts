@@ -8,25 +8,36 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 @Injectable()
 export class UsuarioService {
  
-  constructor(@InjectRepository(Usuario) private userRepository: Repository <Usuario>) {}
+  constructor(@InjectRepository(Usuario) private usuarioRepository: Repository <Usuario>,) {}
 
-  createUsuario(usuario: CreateUsuarioDto): Promise<Usuario> {
-    const newUsuario = this.userRepository.create(usuario);
-    return this.userRepository.save(newUsuario);
+  
+  //crud basico
+
+  //esta consulta la uso para el registro de usuarios, se cambio por el otro que estaba antes
+  createUsuario(createUsuarioDto: CreateUsuarioDto) {
+    return this.usuarioRepository.save(createUsuarioDto);
   }
+
   getUsuarios() {
-   return this.userRepository.find();
+   return this.usuarioRepository.find();
   }
   getUsuario(id: number) {
-    return this.userRepository.findOne({ 
+    return this.usuarioRepository.findOne({ 
       where: { usuarioId: id }
     });
   }
   deleteUsuario(id: number) {
-   return this.userRepository.delete({ usuarioId: id });
+   return this.usuarioRepository.delete({ usuarioId: id });
   }
   updateUsuario(id: number, updateUsuarioDto: UpdateUsuarioDto) {
-    return this.userRepository.update({ usuarioId: id }, updateUsuarioDto);
+    return this.usuarioRepository.update({ usuarioId: id }, updateUsuarioDto);
   }
+
+
+  //consultar usuario por correo electronico para el registro y login
+  getUsuarioByCorreoElectronico(correoElectronico: string) {
+    return this.usuarioRepository.findOneBy({ correoElectronico });
+  }
+
 }
 
