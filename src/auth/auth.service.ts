@@ -50,13 +50,23 @@ export class AuthService {
             throw new UnauthorizedException('Contraseña incorrecta');
         }
 
-        const payload = {correoElectronico: usuario.correoElectronico};
+        // Crear el payload del token JWT (aqui arregle un error que me salio con rolId)
+        const payload = {correoElectronico: usuario.correoElectronico, rolId: usuario.rolId};
 
         const token = await this.jwtService.signAsync(payload);
 
         return {
             token,
             correoElectronico,
+            rolId: usuario.rolId,
         };
+    }
+
+    async validateUser({correoElectronico, rolId}:{correoElectronico: string, rolId: number}) {
+        if (rolId !== 2) {
+            throw new UnauthorizedException('No tienes permisos para acceder a este recurso');
+        }
+
+        return this.usuarioService.getUsuarioByCorreoElectronico(correoElectronico);
     }
 }
