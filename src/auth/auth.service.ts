@@ -4,12 +4,15 @@ import { RegistroDto } from './dto/registro.dto';
 import { LoginDto } from './dto/login.dto';
 
 import * as bcryptjs from 'bcryptjs';
-import { CreateUsuarioDto } from 'src/usuario/dto/create-usuario.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
 
-    constructor(private readonly usuarioService: UsuarioService) {}
+    constructor(
+        private readonly usuarioService: UsuarioService,
+        private readonly jwtService: JwtService
+    ) {}
 
     //logica de registro
     async register({nombre, apellido, correoElectronico, contrasenaFriada, telefono, usuarioCreaId, rolId}: RegistroDto) {
@@ -47,6 +50,13 @@ export class AuthService {
             throw new UnauthorizedException('Contraseña incorrecta');
         }
 
-        return usuario;
+        const payload = {correoElectronico: usuario.correoElectronico};
+
+        const token = await this.jwtService.signAsync(payload);
+
+        return {
+            token,
+            correoElectronico,
+        };
     }
 }
