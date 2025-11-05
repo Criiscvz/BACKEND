@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDa
 import { Rol } from '../../roles/entities/rol.entity';
 import { Direccion } from '../../direcciones/entities/direccion.entity';
 import { Pedido } from '../../pedidos/entities/pedido.entity';
+import { Role } from '../../common/enums/rol.enum';
 
 @Entity('usuario')
 export class Usuario {
@@ -20,14 +21,14 @@ export class Usuario {
   @Column({ name: 'correo_electronico', length: 255, unique: true })
   correoElectronico: string;
 
-  @Column({ name: 'contrasena_friada', length: 255 })
+  @Column({ name: 'contrasena_friada', length: 255, select: false })
   contrasenaFriada: string;
 
   @Column({ name: 'estado_cuenta', type: 'boolean', default: true })
   estadoCuenta: boolean;
 
-  
-  @Column({ name: 'rol_id', default: 1 })
+  //se usa el enum para manejar los roles
+  @Column({ name: 'rol_id', type: 'enum', default: Role.USER, enum: Role })
   rolId: number;
 
   @ManyToOne(() => Rol, (rol) => rol.usuarios)

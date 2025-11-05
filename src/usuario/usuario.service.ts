@@ -13,7 +13,7 @@ export class UsuarioService {
   
   //crud basico
 
-  //esta consulta la uso para el registro de usuarios, se cambio por el otro que estaba antes
+  //esta consulta la uso para el registro de usuarios, se cambio por createUsuario anterior el otro que estaba antes
   createUsuario(createUsuarioDto: CreateUsuarioDto) {
     return this.usuarioRepository.save(createUsuarioDto);
   }
@@ -37,6 +37,14 @@ export class UsuarioService {
   //consultar usuario por correo electronico para el registro y login
   getUsuarioByCorreoElectronico(correoElectronico: string) {
     return this.usuarioRepository.findOneBy({ correoElectronico });
+  }
+
+  //hacer una querie mas persocalizada con findOne, para el login
+  findByEmailWithPassword(correoElectronico: string) {
+    return this.usuarioRepository.findOne({
+      where: { correoElectronico },
+      select: ['usuarioId', 'nombre', 'correoElectronico', 'contrasenaFriada', 'rolId'],
+    });
   }
 
 }
