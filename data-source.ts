@@ -16,7 +16,7 @@ function getEnvVar(name: string): string {
 }
 
 // Leer y validar variables de entorno
-const DB_TYPE = getEnvVar('DB_TYPE');       // ejemplo: 'postgres'
+const DB_TYPE = getEnvVar('DB_TYPE');       
 const DB_HOST = getEnvVar('DB_HOST');
 const DB_PORT = parseInt(getEnvVar('DB_PORT'), 10);
 const DB_USER = getEnvVar('DB_USER');
