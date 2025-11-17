@@ -21,16 +21,24 @@ import { DetalleFacturasModule } from './facturas/detalle-facturas.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',       // o el nombre del contenedor si usas Docker
-      port: 5432,
-      username: 'postgres',
-      password: 'post123',
-      database: 'Inovarte',
-      autoLoadEntities: true,
-      synchronize: false,      // ⚠️ No usar en producción, solo en desarrollo si lo necesitas
-      migrations: ['dist/migrations/*.js'],
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: `.env`,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_DATABASE'),
+        autoLoadEntities: true,
+        synchronize: configService.get<boolean>('DB_SYNCHRONIZE') === true,
+        migrations: ['dist/migrations/*.js'],
+      }),
     }),
     RolesModule,
     EstadosModule,
