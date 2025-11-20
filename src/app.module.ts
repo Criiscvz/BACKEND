@@ -19,6 +19,22 @@ import { AuthModule } from './auth/auth.module';
 import { DetallePedidosModule } from './pedidos/detalle-pedidos.module';
 import { DetalleFacturasModule } from './facturas/detalle-facturas.module';
 
+//Importar todas las entidades
+import { Rol } from './roles/entities/rol.entity';
+import { Estado } from './estados/entities/estado.entity';
+import { Usuario } from './usuario/entities/usuario.entity';
+import { Direccion } from './direcciones/entities/direccion.entity';
+import { Producto } from './productos/entities/producto.entity';
+import { Variante } from './variantes/entities/variante.entity';
+import { Pedido } from './pedidos/entities/pedido.entity';
+import { DetallePedido } from './pedidos/entities/detalle-pedido.entity';
+import { Factura } from './facturas/entities/factura.entity';
+import { DetalleFactura } from './facturas/entities/detalle-factura.entity';
+import { Devolucion } from './devoluciones/entities/devolucione.entity';
+import { Historial } from './historial/entities/historial.entity';
+
+
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -35,8 +51,23 @@ import { DetalleFacturasModule } from './facturas/detalle-facturas.module';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
-        autoLoadEntities: true,
+        entities: [
+          Rol,
+          Estado,
+          Usuario,
+          Direccion,
+          Producto,
+          Variante,
+          Pedido,
+          DetallePedido,
+          Factura,
+          DetalleFactura,
+          Devolucion,
+          Historial,
+        ],
+        //esto sirve para que las entidades se sincronicen con la base de datos y no hacer migraciones
         synchronize: configService.get<boolean>('DB_SYNCHRONIZE') === true,
+        //esto sirve para ejecutar las migraciones para crear las tablas
         migrations: ['dist/migrations/*.js'],
       }),
     }),
@@ -57,4 +88,4 @@ import { DetalleFacturasModule } from './facturas/detalle-facturas.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
