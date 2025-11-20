@@ -7,6 +7,7 @@ export class LoginDto {
     correoElectronico: string;
 
 
+    //transfomar: quita los espacios en blanco al inicio y al final
     @Transform(({ value }) => value.trim())
     @IsString()
     @MinLength(6)
