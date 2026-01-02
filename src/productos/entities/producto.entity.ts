@@ -28,7 +28,15 @@ export class Producto {
   @Column({ length: 255, nullable: true })
   imagen: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value) || 0, // Si es nulo o vacío, devuelve 0
+    },
+  })
   precio: number;
 
   @Column({ type: 'int' })
@@ -53,6 +61,9 @@ export class Producto {
   @Column({ name: 'usuario_actualiza_id', nullable: true })
   usuarioActualizaId: number;
 
-  @OneToMany(() => Variante, (variante) => variante.producto)
+  @OneToMany(() => Variante, (variante) => variante.producto, { 
+    cascade: true, // IMPORTANTE: permite guardar variantes junto al producto
+    eager: true    // Opcional: hace que siempre traiga las variantes al buscar productos
+  })
   variantes: Variante[];
 }
