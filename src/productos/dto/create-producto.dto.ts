@@ -5,6 +5,11 @@ import { Transform } from 'class-transformer';
 // 1. DTO para validar cada variante que venga del formulario
 // 1. DEFINES LA CLASE PARA LA VARIANTE
 class CreateVarianteDto {
+  @IsOptional()
+  @Type(() => Number) // <--- ESTO fuerzar la conversión de string a number
+  @IsNumber()
+  varianteId?: number;
+
   @IsString()
   nombre: string;
 
