@@ -1,6 +1,7 @@
+// 1. LAS IMPORTACIONES VAN AL PRINCIPIO DEL ARCHIVO
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Producto } from '../../productos/entities/producto.entity';
-import { DetallePedido } from '../../pedidos/entities/detalle-pedido.entity';
+import { DetallePedido } from '../../pedidos/entities/detalle-pedido.entity'; // <--- IMPORTACIÓN AQUÍ
 
 @Entity('variante')
 export class Variante {
@@ -14,39 +15,49 @@ export class Variante {
   @JoinColumn({ name: 'producto_id' })
   producto: Producto;
 
-  @Column({ name: 'slug_variante', length: 150 })
+  // ESTA ES LA RELACIÓN QUE TE DABA ERROR (Ponla aquí abajo)
+  @OneToMany(() => DetallePedido, (detalle) => detalle.variante)
+  detallesPedido: DetallePedido[];
+
+  @Column({ length: 100 }) 
+  nombre: string;
+
+  // EL PRECIO QUE AGREGAMOS ANTES
+  @Column({ 
+    type: 'decimal', 
+    precision: 10, 
+    scale: 2,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value) || 0
+    }
+  })
+  precio: number;
+
+  @Column({ name: 'slug_variante', length: 150, nullable: true }) // <-- Asegúrate de que diga nullable: true
   slugVariante: string;
 
-  @Column({ name: 'caracteristica_variante', length: 200 })
+  @Column({ name: 'caracteristica_variante', length: 200, nullable: true })
   caracteristicaVariante: string;
 
   @Column({ name: 'descripcion_variante', type: 'text', nullable: true })
   descripcionVariante: string;
 
-  @Column({ name: 'fecha_elaboracion_va', type: 'date' })
+  @Column({ name: 'fecha_elaboracion_va', type: 'date', nullable: true }) // <--- Agregar nullable: true
   fechaElaboracionVa: Date;
 
   @Column({ name: 'imagen_va', length: 255, nullable: true })
   imagenVa: string;
 
-  @Column({ name: 'tiempo_elaboracion', type: 'int' })
+  @Column({ name: 'tiempo_elaboracion', type: 'int', nullable: true })
   tiempoElaboracion: number;
 
-  @Column({ type: 'boolean' })
+  @Column({ type: 'boolean', default: false, nullable: true })
   personalizable: boolean;
 
-  @CreateDateColumn({ name: 'fecha_creacion', type: 'timestamp' })
+  @CreateDateColumn({ name: 'fecha_creacion' })
   fechaCreacion: Date;
 
-  @UpdateDateColumn({ name: 'fecha_actualizacion', type: 'timestamp' })
-  fechaActualizacion: Date;
-
-  @Column({ name: 'usuario_crea_id' })
-  usuarioCreaId: number;
-
-  @Column({ name: 'usuario_actualiza_id', nullable: true })
-  usuarioActualizaId: number;
-
-  @OneToMany(() => DetallePedido, (detalle) => detalle.variante)
-  detallesPedido: DetallePedido[];
+  @UpdateDateColumn({ name: 'fecha_modificacion' })
+  fechaModificacion: Date;
 }

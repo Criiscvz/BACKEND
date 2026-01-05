@@ -1,55 +1,6 @@
-// src/productos/dto/update-producto.dto.ts
-import { IsString, IsNumber, IsOptional, IsDate, IsPositive } from 'class-validator';
-import { Type } from 'class-transformer';
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateProductoDto } from './create-producto.dto';
 
-export class UpdateProductoDto {
-  @IsOptional()
-  @IsString()
-  nombre?: string;
-
-  @IsOptional()
-  @IsString()
-  marca?: string;
-
-  @IsOptional()
-  @IsString()
-  slug?: string;
-
-  @IsOptional()
-  @IsString()
-  caracteristicaPrincipal?: string;
-
-  @IsOptional()
-  @IsString()
-  descripcion?: string;
-
-  @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  fechaElaboracion?: Date;
-
-  @IsOptional()
-  @IsString()
-  imagen?: string;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @IsPositive()
-  precio?: number;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  stock?: number;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  estadoId?: number;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  usuarioActualizaId?: number;
-}
+// PartialType toma todo lo que definiste en CreateProductoDto 
+// y lo convierte en opcional automáticamente para la actualización.
+export class UpdateProductoDto extends PartialType(CreateProductoDto) {}

@@ -106,6 +106,6 @@ export class ProductosController {
     if (updateProductoDto.stock) updateProductoDto.stock = Number(updateProductoDto.stock);
     if (updateProductoDto.estadoId) updateProductoDto.estadoId = Number(updateProductoDto.estadoId);
 
-    return this.productoService.updateProducto(id, updateProductoDto);
+    return this.productoService.update(id, updateProductoDto);
   }
 }

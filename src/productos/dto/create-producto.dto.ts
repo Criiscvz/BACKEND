@@ -1,7 +1,23 @@
-// src/productos/dto/create-producto.dto.ts
-import { IsString, IsNumber, IsOptional, IsDate, IsPositive, IsNotEmpty } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsDate, IsPositive, IsNotEmpty, IsArray, ValidateNested, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 
+// 1. DTO para validar cada variante que venga del formulario
+// 1. DEFINES LA CLASE PARA LA VARIANTE
+class CreateVarianteDto {
+  @IsOptional()
+  @Type(() => Number) // <--- ESTO fuerzar la conversión de string a number
+  @IsNumber()
+  varianteId?: number;
+
+  @IsString()
+  nombre: string;
+
+  @Type(() => Number)
+  @IsNumber()
+  @IsPositive()
+  precio: number;
+}
 export class CreateProductoDto {
   @IsString()
   @IsNotEmpty()
@@ -23,7 +39,6 @@ export class CreateProductoDto {
   @IsNotEmpty()
   descripcion: string;
 
-  // Transforma el string de fecha que viene del frontend a un objeto Date real
   @Type(() => Date)
   @IsDate()
   @IsOptional()
@@ -33,13 +48,12 @@ export class CreateProductoDto {
   @IsOptional()
   imagen?: string;
 
-  // --- AQUÍ ESTÁ LA MAGIA PARA ARREGLAR EL ERROR 400 ---
-  @Type(() => Number) // Convierte "100" a 100
+  @Type(() => Number)
   @IsNumber()
   @IsPositive()
   precio: number;
 
-  @Type(() => Number) // Convierte "10" a 10
+  @Type(() => Number)
   @IsNumber()
   stock: number;
 
@@ -47,8 +61,16 @@ export class CreateProductoDto {
   @IsNumber()
   estadoId: number;
 
-  @Type(() => Number)
+  // ESTO ARREGLA LOS ERRORES DEL CONTROLLER
+  @IsOptional()
   @IsNumber()
-  @IsPositive()
-  usuarioCreaId: number;
+  @Type(() => Number)
+  usuarioCreaId?: number; 
+
+  // ESTO PERMITE RECIBIR LAS VARIANTES DESDE EL FRONTEND
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateVarianteDto)
+  variantes?: CreateVarianteDto[];
 }
