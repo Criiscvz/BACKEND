@@ -26,12 +26,21 @@ export class ProductosController {
       createProductoDto.imagen = result.secure_url; 
     }
 
-    // Asegurar valores por defecto
+    // --- CORRECCIÓN IMPORTANTE PARA VARIANTES ---
+    if (createProductoDto.variantes) {
+       // Si llega como string (culpa del FormData), lo convertimos a JSON real
+       if (typeof createProductoDto.variantes === 'string') {
+          createProductoDto.variantes = JSON.parse(createProductoDto.variantes);
+       }
+    }
+    // --------------------------------------------
+
+    // Valores por defecto
     if (!createProductoDto.fechaElaboracion) createProductoDto.fechaElaboracion = new Date();
-    createProductoDto.usuarioCreaId = 2;
+    createProductoDto.usuarioCreaId = 1; // Asumiendo ID 1 por ahora
     createProductoDto.estadoId = 1;
     
-    // Conversiones simples
+    // Conversiones de números
     if (createProductoDto.precio) createProductoDto.precio = Number(createProductoDto.precio);
     if (createProductoDto.stock) createProductoDto.stock = Number(createProductoDto.stock);
 
@@ -65,6 +74,14 @@ export class ProductosController {
       const result = await this.cloudinaryService.uploadFile(file);
       updateProductoDto.imagen = result.secure_url;
     }
+
+    // --- CORRECCIÓN IMPORTANTE PARA VARIANTES EN EDICIÓN ---
+    if (updateProductoDto.variantes) {
+       if (typeof updateProductoDto.variantes === 'string') {
+          updateProductoDto.variantes = JSON.parse(updateProductoDto.variantes);
+       }
+    }
+    // -------------------------------------------------------
 
     // Conversiones
     if (updateProductoDto.precio) updateProductoDto.precio = Number(updateProductoDto.precio);

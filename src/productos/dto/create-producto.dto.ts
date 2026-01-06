@@ -1,5 +1,5 @@
-import { IsString, IsNumber, IsOptional, IsPositive, Min, IsArray, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer'; // <--- IMPORTANTE
+import { IsString, IsNumber, IsOptional, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateProductoDto {
   
@@ -21,21 +21,19 @@ export class CreateProductoDto {
   @IsString()
   descripcion: string;
 
-  // --- CONVERSIÓN DE TIPOS (SOLUCIÓN AL ERROR) ---
-
   @IsNumber()
   @Min(0)
-  @Type(() => Number) // Convierte "10.50" (string) a 10.50 (number)
+  @Type(() => Number)
   precio: number;
 
   @IsNumber()
   @Min(0)
-  @Type(() => Number) // Convierte "5" a 5
+  @Type(() => Number)
   stock: number;
 
-  @IsOptional() // Puede ser opcional si lo asignas en el controller
+  @IsOptional()
   @IsNumber()
-  @Type(() => Number) // Convierte "1" a 1 (Soluciona tu error de estadoId)
+  @Type(() => Number)
   estadoId?: number;
 
   @IsOptional()
@@ -43,15 +41,16 @@ export class CreateProductoDto {
   @Type(() => Number)
   usuarioCreaId?: number;
 
-  // ----------------------------------------------
-
   @IsString()
   @IsOptional()
   imagen?: string;
 
   @IsOptional()
-  fechaElaboracion?: Date; // Si viene como string ISO, @Type(() => Date) ayudaría también
-  
-  // Si manejas variantes como JSON string desde el frontend, necesitarás transformarlas aquí,
-  // pero por ahora para solucionar el error 400 principal, esto es suficiente.
+  fechaElaboracion?: Date;
+
+  // --- AGREGAR ESTO PARA CORREGIR EL ERROR ROJO ---
+  @IsOptional()
+  variantes?: any; 
+  // La definimos como 'any' para que acepte el string del FormData 
+  // y luego tú lo conviertas a JSON en el controlador sin que TypeScript se queje.
 }
