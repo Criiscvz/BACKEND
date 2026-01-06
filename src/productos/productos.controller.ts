@@ -28,7 +28,7 @@ export class ProductosController {
 
     // Asegurar valores por defecto
     if (!createProductoDto.fechaElaboracion) createProductoDto.fechaElaboracion = new Date();
-    createProductoDto.usuarioCreaId = 1;
+    createProductoDto.usuarioCreaId = 2;
     createProductoDto.estadoId = 1;
     
     // Conversiones simples
