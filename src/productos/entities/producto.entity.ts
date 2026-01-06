@@ -10,14 +10,14 @@ export class Producto {
   @Column({ length: 100 })
   nombre: string;
 
-  @Column({ length: 100 })
-  marca: string;
+  /*@Column({ length: 100 })
+  marca: string;*/
 
   @Column({ length: 150, unique: true })
   slug: string;
 
-  @Column({ name: 'caracteristica_principal', length: 200 })
-  caracteristicaPrincipal: string;
+  /*@Column({ name: 'caracteristica_principal', length: 200 })
+  caracteristicaPrincipal: string;*/
 
   @Column({ type: 'text' })
   descripcion: string;
@@ -62,8 +62,11 @@ export class Producto {
   usuarioActualizaId: number;
 
   @OneToMany(() => Variante, (variante) => variante.producto, { 
-    cascade: true, // IMPORTANTE: permite guardar variantes junto al producto
-    eager: true    // Opcional: hace que siempre traiga las variantes al buscar productos
+      cascade: true, 
+      eager: true,
+      // ESTA LÍNEA ES LA SOLUCIÓN:
+      // Indica que si una variante se quita del arreglo, debe ser borrada de la DB.
+
   })
   variantes: Variante[];
 }

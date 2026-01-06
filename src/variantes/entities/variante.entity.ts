@@ -11,7 +11,9 @@ export class Variante {
   @Column({ name: 'producto_id' })
   productoId: number;
 
-  @ManyToOne(() => Producto, (producto) => producto.variantes)
+  @ManyToOne(() => Producto, (producto) => producto.variantes, {
+    onDelete: 'CASCADE', // Indispensable para que la DB permita borrar el padre
+  })
   @JoinColumn({ name: 'producto_id' })
   producto: Producto;
 
@@ -37,27 +39,24 @@ export class Variante {
   @Column({ name: 'slug_variante', length: 150, nullable: true }) // <-- Asegúrate de que diga nullable: true
   slugVariante: string;
 
-  @Column({ name: 'caracteristica_variante', length: 200, nullable: true })
+  /*@Column({ name: 'caracteristica_variante', length: 200, nullable: true })
   caracteristicaVariante: string;
 
-  @Column({ name: 'descripcion_variante', type: 'text', nullable: true })
-  descripcionVariante: string;
-
-  @Column({ name: 'fecha_elaboracion_va', type: 'date', nullable: true }) // <--- Agregar nullable: true
+  /*@Column({ name: 'fecha_elaboracion_va', type: 'date', nullable: true }) // <--- Agregar nullable: true
   fechaElaboracionVa: Date;
 
   @Column({ name: 'imagen_va', length: 255, nullable: true })
   imagenVa: string;
 
-  @Column({ name: 'tiempo_elaboracion', type: 'int', nullable: true })
+  /*@Column({ name: 'tiempo_elaboracion', type: 'int', nullable: true })
   tiempoElaboracion: number;
 
-  @Column({ type: 'boolean', default: false, nullable: true })
+  /*@Column({ type: 'boolean', default: false, nullable: true })
   personalizable: boolean;
 
-  @CreateDateColumn({ name: 'fecha_creacion' })
+  /*@CreateDateColumn({ name: 'fecha_creacion' })
   fechaCreacion: Date;
 
   @UpdateDateColumn({ name: 'fecha_modificacion' })
-  fechaModificacion: Date;
+  fechaModificacion: Date;*/
 }

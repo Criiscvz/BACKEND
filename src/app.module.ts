@@ -66,8 +66,7 @@ import { Historial } from './historial/entities/historial.entity';
           Historial,
         ],
         //esto sirve para que las entidades se sincronicen con la base de datos y no hacer migraciones
-        synchronize: configService.get<boolean>('DB_SYNCHRONIZE') === true,
-        //esto sirve para ejecutar las migraciones para crear las tablas
+        synchronize: configService.get<string>('DB_SYNCHRONIZE') === 'true',        //esto sirve para ejecutar las migraciones para crear las tablas
         migrations: ['dist/migrations/*.js'],
       }),
     }),
