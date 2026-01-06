@@ -15,11 +15,15 @@ export class ProductoService {
     return this.productoRepository.save(newProducto);
   }
   getProductos() {
-   return this.productoRepository.find();
+    return this.productoRepository.find({
+      relations: ['variantes'] // <--- AGREGAR ESTO IMPORTANTE
+    });
   }
+
   getProducto(id: number) {
     return this.productoRepository.findOne({ 
-      where: { productoId: id }
+      where: { productoId: id },
+      relations: ['variantes'] // <--- AGREGAR ESTO TAMBIÉN
     });
   }
   deleteProducto(id: number) {

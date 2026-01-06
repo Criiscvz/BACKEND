@@ -22,8 +22,8 @@ export class Producto {
   @Column({ type: 'text' })
   descripcion: string;
 
-  @Column({ name: 'fecha_elaboracion', type: 'date' })
-  fechaElaboracion: Date;
+  //@Column({ name: 'fecha_elaboracion', type: 'date' })
+  //fechaElaboracion: Date;
 
   @Column({ length: 255, nullable: true })
   imagen: string;
