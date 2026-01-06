@@ -19,7 +19,14 @@ export class PedidosService {
 
   getPedidos() {
     return this.pedidoRepository.find({
-      relations: ['usuario', 'estado', 'detalles', 'factura'],
+      relations: [
+        'usuario', 
+        'estado', 
+        'detalles', 
+        'detalles.variante', 
+        'detalles.variante.producto', 
+        'factura'
+      ], 
     });
   }
 
