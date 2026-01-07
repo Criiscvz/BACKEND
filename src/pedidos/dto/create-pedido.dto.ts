@@ -1,18 +1,26 @@
-import { IsArray, IsNumber, IsOptional, IsString, ValidateNested, IsObject, IsBoolean } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, IsString, ValidateNested, IsObject, IsBoolean, IsInt, IsPositive } from 'class-validator';
 import { Type } from 'class-transformer';
 
 // Clase auxiliar para validar cada producto dentro del array 'detalles'
 class DetallePedidoDto {
-    @IsNumber()
+    @IsOptional()
     @Type(() => Number)
-    varianteId: number;
+    @IsInt()
+    varianteId?: number;
 
-    @IsNumber()
+    @IsOptional()
     @Type(() => Number)
+    @IsInt()
+    productoId?: number;
+
+    @Type(() => Number)
+    @IsInt()
+    @IsPositive()
     cantidad: number;
 
-    @IsNumber()
     @Type(() => Number)
+    @IsNumber()
+    @IsPositive()
     precio: number;
 }
 
