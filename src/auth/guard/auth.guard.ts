@@ -21,12 +21,18 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(
-        token,
-        {
-          secret: JwtConstants.secret,
-        }
-      );
+
+      //antigiuo codigo:
+      //const payload = await this.jwtService.verifyAsync(
+      //token,
+      //{
+      //  secret: JwtConstants.secret,
+      //}
+      //);
+
+      // El verifyAsync usará la configuración que definiste en el módulo
+      const payload = await this.jwtService.verifyAsync(token);
+
       //request obtine una propiedad nueva llamada user y le asigna el payload
       request['user'] = payload;
     } catch {

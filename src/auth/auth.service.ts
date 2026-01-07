@@ -4,6 +4,7 @@ import { RegistroDto } from './dto/registro.dto';
 import { LoginDto } from './dto/login.dto';
 import * as bcryptjs from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from '../common/enums/rol.enum';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,7 @@ export class AuthService {
     ) { }
 
     //logica de registro
-    async register({ nombre, apellido, correoElectronico, contrasenaFriada, telefono, usuarioCreaId, rolId }: RegistroDto) {
+    async register({ nombre, apellido, correoElectronico, contrasenaFriada, telefono, usuarioCreaId }: RegistroDto) {
 
         //getUsuarioByCorreoElectronico es para verificar si el correoElectronico ya existe
         const usuario = await this.usuarioService.getUsuarioByCorreoElectronico(correoElectronico);
@@ -34,7 +35,12 @@ export class AuthService {
             contrasenaFriada: await bcryptjs.hash(contrasenaFriada, 10),
             telefono,
             usuarioCreaId,
-            rolId: 1, // Rol predeterminado si no se envía
+
+            // CAMBIA ESTO:
+            // rolId: 1, 
+            // POR ESTO:
+            rolId: Role.USER, // Así el código se explica solo y es más seguro.
+            //rolId: 1, // Rol predeterminado si no se envía
         });
 
         //retornar el nombre y el correoElectronico del usuario creado
@@ -62,7 +68,11 @@ export class AuthService {
         }
 
         //generar el token
-        const payload = { correoElectronico: usuario.correoElectronico, rolId: usuario.rolId };
+        const payload = {
+            sub: usuario.usuarioId, // <--- Agrega esto (Estándar JWT)
+            correoElectronico: usuario.correoElectronico,
+            rolId: usuario.rolId
+        };
 
         const token = await this.jwtService.signAsync(payload);
 
