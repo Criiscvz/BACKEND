@@ -1,19 +1,14 @@
-//import { IsString, IsNotEmpty, Length } from 'class-validator';
-
-//*export class CreateEstadoDto {
-//  @IsString()
- // @IsNotEmpty()
- // @Length(1, 50)
- // nombre: string;
-
- // @IsString()
-//  @IsNotEmpty()
- // @Length(1, 50)
- // tipo: string;
-//}
+import { IsString, IsNotEmpty, Length } from 'class-validator';
 
 export class CreateEstadoDto {
-    nombre: string;
-    tipo: string;
+ @IsString()
+ @IsNotEmpty()
+ @Length(1, 50)
+ nombre: string;
+
+@IsString()
+@IsNotEmpty()
+ @Length(1, 50)
+ tipo: string;
 }
 

@@ -1,76 +1,56 @@
-import { IsString, IsNumber, IsOptional, IsDate, IsPositive, IsNotEmpty, IsArray, ValidateNested, IsBoolean } from 'class-validator';
+import { IsString, IsNumber, IsOptional, Min } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Transform } from 'class-transformer';
 
-// 1. DTO para validar cada variante que venga del formulario
-// 1. DEFINES LA CLASE PARA LA VARIANTE
-class CreateVarianteDto {
-  @IsOptional()
-  @Type(() => Number) // <--- ESTO fuerzar la conversión de string a number
-  @IsNumber()
-  varianteId?: number;
-
-  @IsString()
-  nombre: string;
-
-  @Type(() => Number)
-  @IsNumber()
-  @IsPositive()
-  precio: number;
-}
 export class CreateProductoDto {
+  
   @IsString()
-  @IsNotEmpty()
   nombre: string;
 
   @IsString()
-  @IsNotEmpty()
-  marca: string;
+  @IsOptional()
+  marca?: string;
 
   @IsString()
   @IsOptional()
-  slug: string;
+  slug?: string;
 
   @IsString()
   @IsOptional()
-  caracteristicaPrincipal: string;
+  caracteristicaPrincipal?: string;
 
   @IsString()
-  @IsNotEmpty()
   descripcion: string;
 
-  @Type(() => Date)
-  @IsDate()
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  precio: number;
+
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  stock: number;
+
   @IsOptional()
-  fechaElaboracion: Date;
+  @IsNumber()
+  @Type(() => Number)
+  estadoId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  usuarioCreaId?: number;
 
   @IsString()
   @IsOptional()
   imagen?: string;
 
-  @Type(() => Number)
-  @IsNumber()
-  @IsPositive()
-  precio: number;
-
-  @Type(() => Number)
-  @IsNumber()
-  stock: number;
-
-  @Type(() => Number)
-  @IsNumber()
-  estadoId: number;
-
-  // ESTO ARREGLA LOS ERRORES DEL CONTROLLER
   @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  usuarioCreaId?: number; 
+  fechaElaboracion?: Date;
 
-  // ESTO PERMITE RECIBIR LAS VARIANTES DESDE EL FRONTEND
+  // --- AGREGAR ESTO PARA CORREGIR EL ERROR ROJO ---
   @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateVarianteDto)
-  variantes?: CreateVarianteDto[];
+  variantes?: any; 
+  // La definimos como 'any' para que acepte el string del FormData 
+  // y luego tú lo conviertas a JSON en el controlador sin que TypeScript se queje.
 }
