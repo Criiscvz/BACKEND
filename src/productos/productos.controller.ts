@@ -1,67 +1,48 @@
-// productos.controller.ts
 import { Controller, Get, Post, Body, Put, Param, Delete, ParseIntPipe, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductoService } from './productos.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service'; // <--- IMPORTAR
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 
 @Controller('productos')
 export class ProductosController {
 
-  constructor(private productoService: ProductoService) { }
+  // Inyectamos CloudinaryService
+  constructor(
+    private productoService: ProductoService,
+    private cloudinaryService: CloudinaryService 
+  ) { }
 
   @Post()
-  @UseInterceptors(FileInterceptor('file', {
-    // --- CONFIGURACIÓN MULTER LOCAL ---
-    storage: diskStorage({
-      destination: './uploads', // Carpeta donde se guardan (créala en la raíz del proyecto backend)
-      filename: (req, file, callback) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = extname(file.originalname);
-        callback(null, `producto-${uniqueSuffix}${ext}`);
-      },
-    }),
-    // ----------------------------------
-
-    // --- FUTURO: CLOUDINARY / GOOGLE CLOUD ---
-    // Para Cloudinary, aquí no usarías 'storage: diskStorage'.
-    // Usarías 'MemoryStorage' (por defecto si no pones nada) para tener el archivo en buffer
-    // y luego en el servicio llamarías a la API de Cloudinary.
-    // -----------------------------------------
-  }))
-  createProducto(
+  @UseInterceptors(FileInterceptor('file')) // <--- YA NO USAMOS DISKSTORAGE (se guarda en memoria RAM temporalmente)
+  async createProducto(
     @Body() createProductoDto: CreateProductoDto,
     @UploadedFile() file: Express.Multer.File
   ) {
-    // Si se subió un archivo, guardamos la ruta completa
     if (file) {
-      // Para local: Construimos la URL
-      // En producción, cambia 'http://localhost:3000' por tu dominio real o variables de entorno
-      createProductoDto.imagen = `http://localhost:3000/uploads/${file.filename}`;
-
-      // --- AGREGA ESTO: Si no viene fecha, pon la de hoy ---
-      if (!createProductoDto.fechaElaboracion) {
-        createProductoDto.fechaElaboracion = new Date();
-      }
-
-      // Asignar IDs obligatorios si no vienen
-      createProductoDto.usuarioCreaId = 1;
-      createProductoDto.estadoId = 1;
-
-      // --- FUTURO: CLOUDINARY ---
-      // const url = await this.cloudinaryService.uploadImage(file);
-      // createProductoDto.imagen = url;
+      // AQUÍ OCURRE LA MAGIA: Subimos a Cloudinary y obtenemos la URL
+      const result = await this.cloudinaryService.uploadFile(file);
+      createProductoDto.imagen = result.secure_url; 
     }
 
-    // Nota: Como viene de FormData, los números pueden llegar como strings.
-    // Asegúrate de convertirlos si es necesario, aunque ClassTransform suele ayudar.
+    // --- CORRECCIÓN IMPORTANTE PARA VARIANTES ---
+    if (createProductoDto.variantes) {
+       // Si llega como string (culpa del FormData), lo convertimos a JSON real
+       if (typeof createProductoDto.variantes === 'string') {
+          createProductoDto.variantes = JSON.parse(createProductoDto.variantes);
+       }
+    }
+    // --------------------------------------------
+
+    // Valores por defecto
+    if (!createProductoDto.fechaElaboracion) createProductoDto.fechaElaboracion = new Date();
+    createProductoDto.usuarioCreaId = 1; // Asumiendo ID 1 por ahora
+    createProductoDto.estadoId = 1;
+    
+    // Conversiones de números
     if (createProductoDto.precio) createProductoDto.precio = Number(createProductoDto.precio);
     if (createProductoDto.stock) createProductoDto.stock = Number(createProductoDto.stock);
-    if (createProductoDto.estadoId) createProductoDto.estadoId = Number(createProductoDto.estadoId);
-    // Asignamos usuario por defecto si no viene (el admin)
-    createProductoDto.usuarioCreaId = 1;
 
     return this.productoService.createProducto(createProductoDto);
   }
@@ -82,29 +63,29 @@ export class ProductosController {
   }
 
   @Put(':id')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, callback) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = extname(file.originalname);
-        callback(null, `producto-${uniqueSuffix}${ext}`);
-      },
-    }),
-  }))
-  updateProducto(
+  @UseInterceptors(FileInterceptor('file'))
+  async updateProducto(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProductoDto: UpdateProductoDto,
     @UploadedFile() file: Express.Multer.File
   ) {
     if (file) {
-      updateProductoDto.imagen = `http://localhost:3000/uploads/${file.filename}`;
+      // Si suben nueva imagen, la mandamos a Cloudinary
+      const result = await this.cloudinaryService.uploadFile(file);
+      updateProductoDto.imagen = result.secure_url;
     }
 
-    // Conversiones de tipos necesarias al venir de FormData
+    // --- CORRECCIÓN IMPORTANTE PARA VARIANTES EN EDICIÓN ---
+    if (updateProductoDto.variantes) {
+       if (typeof updateProductoDto.variantes === 'string') {
+          updateProductoDto.variantes = JSON.parse(updateProductoDto.variantes);
+       }
+    }
+    // -------------------------------------------------------
+
+    // Conversiones
     if (updateProductoDto.precio) updateProductoDto.precio = Number(updateProductoDto.precio);
     if (updateProductoDto.stock) updateProductoDto.stock = Number(updateProductoDto.stock);
-    if (updateProductoDto.estadoId) updateProductoDto.estadoId = Number(updateProductoDto.estadoId);
 
     return this.productoService.update(id, updateProductoDto);
   }

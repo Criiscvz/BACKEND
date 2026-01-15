@@ -28,8 +28,8 @@ export class RegistroDto {
   @IsNotEmpty()
   usuarioCreaId: number;
 
-  @IsOptional()
-  @IsInt()
-  rolId: number;
+  //@IsOptional()
+  //@IsInt()
+  //rolId: number;
 
 }

@@ -26,10 +26,21 @@ export class Pedido {
   @JoinColumn({ name: 'estado_id' })
   estado: Estado;
 
-  @Column({ type: 'boolean' })
+  // --- NUEVAS COLUMNAS ---
+  @Column({ name: 'direccion_envio', type: 'text', nullable: true })
+  direccionEnvio: string; // Guardaremos la dirección como texto (JSON stringify)
+
+  @Column({ length: 50, nullable: true })
+  transporte: string;
+
+  @Column({ name: 'metodo_pago', length: 50, nullable: true })
+  metodoPago: string;
+  // -----------------------
+
+  @Column({ type: 'boolean', default: false })
   cotizacion: boolean;
 
-  @Column({ name: 'fecha_estimada_entrega', type: 'date' })
+  @Column({ name: 'fecha_estimada_entrega', type: 'date', nullable: true })
   fechaEstimadaEntrega: Date;
 
   @CreateDateColumn({ name: 'fecha_creacion', type: 'timestamp' })
@@ -38,13 +49,15 @@ export class Pedido {
   @UpdateDateColumn({ name: 'fecha_actualizacion', type: 'timestamp' })
   fechaActualizacion: Date;
 
-  @Column({ name: 'usuario_crea_id' })
+  @Column({ name: 'usuario_crea_id', nullable: true })
   usuarioCreaId: number;
 
   @Column({ name: 'usuario_actualiza_id', nullable: true })
   usuarioActualizaId: number;
 
-  @OneToMany(() => DetallePedido, (detalle) => detalle.pedido)
+  @OneToMany(() => DetallePedido, (detalle) => detalle.pedido, { 
+    cascade: true // <--- IMPORTANTE: Permite guardar los detalles junto al pedido
+  })
   detalles: DetallePedido[];
 
   @OneToOne(() => Factura, (factura) => factura.pedido)
