@@ -25,22 +25,15 @@ export class AuthService {
             throw new BadRequestException('El correo electrónico ya está en uso');
         }
 
-        //crear el usuario nuevo
-        //usuarioService.createUsuario es para crear el usuario
-        await this.usuarioService.createUsuario({
+        //crear el usuario nuevo usando el método centralizado que hashea la contraseña
+        await this.usuarioService.createUsuarioWithHashedPassword({
             nombre,
             apellido,
             correoElectronico,
-            //aqui se encripta la contrasenaFriada, (10 es el numero de rondas de encriptacion)
-            contrasenaFriada: await bcryptjs.hash(contrasenaFriada, 10),
+            contrasenaFriada, // Se enviará en texto plano, el service lo hasheará
             telefono,
             usuarioCreaId,
-
-            // CAMBIA ESTO:
-            // rolId: 1, 
-            // POR ESTO:
-            rolId: Role.USER, // Así el código se explica solo y es más seguro.
-            //rolId: 1, // Rol predeterminado si no se envía
+            rolId: Role.USER, // Rol predeterminado para usuarios que se registran
         });
 
         //retornar el nombre y el correoElectronico del usuario creado

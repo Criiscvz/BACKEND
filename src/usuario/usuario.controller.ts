@@ -14,10 +14,16 @@ export class UsuarioController {
   //crud basico que se usa en panel de admin en el frontend
   //     http://localhost:3000/api/v1/usuario
   
+  /**
+   * Endpoint de administrador para crear usuarios
+   * La contraseña se hasheará automáticamente usando bcrypt con 10 rounds
+   * IMPORTANTE: Este endpoint usa el mismo proceso de hashing que el registro normal
+   */
   @Post()
   @Auth(Role.ADMIN)
   createUsuario(@Body() createUsuarioDto: CreateUsuarioDto): Promise<Usuario> {
-    return this.usuarioService.createUsuario(createUsuarioDto);
+    // Usar el método centralizado que hashea la contraseña automáticamente
+    return this.usuarioService.createUsuarioWithHashedPassword(createUsuarioDto);
   }
 
   @Get()
