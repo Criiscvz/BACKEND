@@ -39,6 +39,9 @@ export class Producto {
   })
   precio: number;
 
+  @Column({ type: 'boolean', default: true })
+  activo: boolean;
+
   @Column({ type: 'int' })
   stock: number;
 

@@ -11,16 +11,27 @@ export class DevolucionesService {
 
   createDevolucion(devolucion: CreateDevolucioneDto): Promise<Devolucion> {
     const newDevolucion = this.devolucionRepository.create(devolucion);
+    
+    // Si no viene fecha del frontend, usamos la fecha actual del servidor
+    if (!newDevolucion.fechaDevolucion) {
+        newDevolucion.fechaDevolucion = new Date();
+    }
+    
     return this.devolucionRepository.save(newDevolucion);
   }
 
+  // MEJORA CRÍTICA: Traemos las relaciones para ver fotos y nombres en el Admin
   getDevoluciones() {
-   return this.devolucionRepository.find();
+   return this.devolucionRepository.find({
+       relations: ['variante', 'variante.producto', 'factura', 'factura.pedido'], 
+       order: { fechaDevolucion: 'DESC' }
+   });
   }
 
   getDevolucion(id: number) {
     return this.devolucionRepository.findOne({ 
-      where: { devolucionId: id }
+      where: { devolucionId: id },
+      relations: ['variante', 'variante.producto', 'factura']
     });
   }
 
