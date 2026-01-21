@@ -2,7 +2,7 @@ import { BadRequestException, UnauthorizedException, Injectable } from '@nestjs/
 import { UsuarioService } from 'src/usuario/usuario.service';
 import { RegistroDto } from './dto/registro.dto';
 import { LoginDto } from './dto/login.dto';
-import * as bcryptjs from 'bcryptjs';
+import * as bcryptjs from 'bcryptjs'; // <--- AQUÍ SÍ USAMOS BCRYPTJS
 import { JwtService } from '@nestjs/jwt';
 import { Role } from '../common/enums/rol.enum';
 
@@ -14,7 +14,7 @@ export class AuthService {
         private readonly jwtService: JwtService
     ) { }
 
-    // Logica de registro
+    // REGISTRO
     async register({ nombre, apellido, correoElectronico, contrasenaFriada, telefono, usuarioCreaId }: RegistroDto) {
 
         const usuario = await this.usuarioService.getUsuarioByCorreoElectronico(correoElectronico);
@@ -23,14 +23,12 @@ export class AuthService {
             throw new BadRequestException('El correo electrónico ya está en uso');
         }
 
-        // --- CORRECCIÓN AQUÍ ---
-        // Pasamos la contraseña SIN encriptar, porque UsuarioService.createUsuario
-        // ahora se encarga de encriptarla automáticamente.
+        // AQUÍ ENCRIPTAMOS ANTES DE MANDAR A GUARDAR
         await this.usuarioService.createUsuario({
             nombre,
             apellido,
             correoElectronico,
-            contrasenaFriada: contrasenaFriada, // <--- SE ENVÍA TEXTO PLANO
+            contrasenaFriada: await bcryptjs.hash(contrasenaFriada, 10), // <--- ESTO ES CORRECTO AQUÍ
             telefono,
             usuarioCreaId,
             rolId: Role.USER, 
@@ -42,7 +40,7 @@ export class AuthService {
         };
     }
 
-    // Logica de login
+    // LOGIN
     async login({ correoElectronico, contrasenaFriada }: LoginDto) {
 
         const usuario = await this.usuarioService.findByEmailWithPassword(correoElectronico);
@@ -58,7 +56,7 @@ export class AuthService {
         }
 
         const payload = {
-            sub: usuario.usuarioId,
+            sub: usuario.usuarioId, 
             correoElectronico: usuario.correoElectronico,
             rolId: usuario.rolId
         };
