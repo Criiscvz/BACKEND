@@ -17,9 +17,13 @@ export class DetallePedido {
   @Column({ name: 'pedido_id' })
   pedidoId: number;
 
-  @ManyToOne(() => Pedido, (pedido) => pedido.detalles)
+  // --- CORRECCIÓN AQUÍ ---
+  // Agregamos { onDelete: 'CASCADE' }
+  // Esto le dice a la Base de Datos: "Si borras el Pedido, borra también estos detalles automáticamente"
+  @ManyToOne(() => Pedido, (pedido) => pedido.detalles, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'pedido_id' })
   pedido: Pedido;
+  // -----------------------
 
   @Column({ type: 'int' })
   cantidad: number;

@@ -10,9 +10,13 @@ export class DetalleFactura {
   @Column({ name: 'factura_id' })
   facturaId: number;
 
-  @ManyToOne(() => Factura, (factura) => factura.detalles)
+  // --- ACTUALIZACIÓN AQUÍ ---
+  // Agregamos { onDelete: 'CASCADE' }
+  // Si se elimina la factura, se eliminan estos detalles automáticamente.
+  @ManyToOne(() => Factura, (factura) => factura.detalles, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'factura_id' })
   factura: Factura;
+  // --------------------------
 
   @Column({ name: 'variante_id' })
   varianteId: number;
