@@ -29,23 +29,21 @@ export class PedidosService {
     @InjectRepository(Producto)
     private readonly productoRepository: Repository<Producto>,
 
-    // Inyecciones para Facturación Automática
     @InjectRepository(Factura)
     private readonly facturaRepository: Repository<Factura>,
 
     @InjectRepository(DetalleFactura)
     private readonly detalleFacturaRepository: Repository<DetalleFactura>,
 
-    // DataSource para transacciones
     private readonly dataSource: DataSource,
   ) {}
 
   // =================================================================================
-  // CREAR PEDIDO + FACTURA (Transacción Completa)
+  // CREAR PEDIDO + FACTURA + VALIDACIÓN DE STOCK ESTRICTA
   // =================================================================================
   async createPedido(createPedidoDto: any): Promise<any> {
     
-    // 1. VALIDACIÓN DE SEGURIDAD: Rechazar pedidos vacíos
+    // 1. VALIDACIÓN BÁSICA: No permitir pedidos vacíos
     if (!createPedidoDto.detalles || createPedidoDto.detalles.length === 0) {
         throw new BadRequestException('No se puede crear un pedido sin productos.');
     }
@@ -56,30 +54,22 @@ export class PedidosService {
 
     try {
       // ---------------------------------------------------
-      // 2. PROCESAR VARIANTES
+      // 2. PREPARAR DATOS (Buscar o Crear Variante Estándar)
       // ---------------------------------------------------
       const detallesProcesados = await Promise.all(
         createPedidoDto.detalles.map(async (detalle) => {
-          // Caso A: Ya viene con varianteId
-          if (detalle.varianteId) {
-            return detalle;
-          }
+          // Si ya tiene varianteId, lo usamos
+          if (detalle.varianteId) return detalle;
           
-          // Caso B: Viene con productoId (hay que buscar/crear variante estándar)
+          // Si viene con productoId, buscamos su variante estándar
           if (detalle.productoId) {
             let variante = await this.varianteRepository.findOne({
-              where: { 
-                productoId: detalle.productoId,
-                nombre: 'Estándar'
-              }
+              where: { productoId: detalle.productoId, nombre: 'Estándar' }
             });
 
-            // Si no existe, la creamos dentro de la transacción
+            // Si no existe la variante estándar, la creamos al vuelo
             if (!variante) {
-              const producto = await this.productoRepository.findOne({
-                where: { productoId: detalle.productoId }
-              });
-
+              const producto = await this.productoRepository.findOne({ where: { productoId: detalle.productoId } });
               if (producto) {
                 const nuevaVariante = this.varianteRepository.create({
                   productoId: detalle.productoId,
@@ -95,13 +85,12 @@ export class PedidosService {
                 variante = await queryRunner.manager.save(nuevaVariante);
               }
             }
-
             if (variante) {
               return {
                 ...detalle,
                 varianteId: variante.varianteId,
                 productoId: undefined, 
-                precio: variante.precio // Aseguramos tener el precio aquí
+                precio: variante.precio
               };
             }
           }
@@ -110,27 +99,26 @@ export class PedidosService {
       );
 
       // ---------------------------------------------------
-      // 3. CALCULAR TOTALES
+      // 3. CALCULAR EL TOTAL A PAGAR
       // ---------------------------------------------------
       const totalCalculado = detallesProcesados.reduce((acc, item) => {
         return acc + (Number(item.precio) * Number(item.cantidad));
       }, 0);
 
       // ---------------------------------------------------
-      // 4. GUARDAR CABECERA DEL PEDIDO
+      // 4. GUARDAR LA CABECERA DEL PEDIDO
       // ---------------------------------------------------
-      // CORRECCIÓN DE TIPO: Usamos 'as Pedido' para evitar el error de TypeScript
       const nuevoPedido = this.pedidoRepository.create({
         ...createPedidoDto,
-        detalles: [], 
+        detalles: [], // Los guardaremos manualmente para controlar el stock
         contenidoTotal: totalCalculado 
       } as Pedido); 
       
-      nuevoPedido.estadoId = 1; 
+      nuevoPedido.estadoId = 1; // 1 = Pendiente
       nuevoPedido.cotizacion = false;
       nuevoPedido.usuarioCreaId = createPedidoDto.usuarioId;
       
-      // Formatear dirección
+      // Guardar dirección como texto simple para el historial
       if (createPedidoDto.direccion && typeof createPedidoDto.direccion === 'object') {
           const dir: any = createPedidoDto.direccion;
           nuevoPedido.direccionEnvio = `${dir.callePrincipal || dir.calleAvenida}, ${dir.ciudad}, ${dir.provincia}`;
@@ -139,9 +127,39 @@ export class PedidosService {
       const pedidoGuardado = await queryRunner.manager.save(nuevoPedido);
 
       // ---------------------------------------------------
-      // 5. GUARDAR DETALLES DEL PEDIDO
+      // 5. GUARDAR DETALLES, VALIDAR Y RESTAR STOCK
       // ---------------------------------------------------
       for (const item of detallesProcesados) {
+          
+          // A. Buscar información del producto asociado a la variante
+          const varianteRelacionada = await queryRunner.manager.findOne(Variante, {
+              where: { varianteId: item.varianteId },
+              relations: ['producto']
+          });
+
+          if (!varianteRelacionada || !varianteRelacionada.producto) {
+              throw new NotFoundException(`Producto no encontrado para la variante ${item.varianteId}`);
+          }
+
+          const producto = varianteRelacionada.producto;
+
+          // B. ¡VALIDACIÓN CLAVE! ¿Hay suficiente stock?
+          if (producto.stock < item.cantidad) {
+              // Si pide 5 y hay 2, esto detiene todo el proceso.
+              throw new BadRequestException(
+                  `Stock insuficiente para "${producto.nombre}". Solicitado: ${item.cantidad}, Disponible: ${producto.stock}`
+              );
+          }
+
+          // C. Si hay stock, lo restamos de la base de datos
+          await queryRunner.manager.decrement(
+              Producto, 
+              { productoId: producto.productoId }, 
+              'stock', 
+              item.cantidad
+          );
+
+          // D. Guardamos el registro del detalle de pedido
           const detalle = this.detallePedidoRepository.create({
             pedidoId: pedidoGuardado.pedidoId,
             varianteId: item.varianteId,
@@ -152,10 +170,9 @@ export class PedidosService {
       }
 
       // ---------------------------------------------------
-      // 6. GENERAR FACTURA AUTOMÁTICA
+      // 6. GENERAR FACTURA
       // ---------------------------------------------------
       const IVA_PORCENTAJE = 0.15;
-      
       const subtotalCalc = Number((totalCalculado / (1 + IVA_PORCENTAJE)).toFixed(2));
       const ivaCalc = Number((totalCalculado - subtotalCalc).toFixed(2));
 
@@ -187,12 +204,9 @@ export class PedidosService {
            await queryRunner.manager.save(detalleFactura);
       }
 
-      // Confirmar transacción
+      // Todo salió bien: Confirmamos los cambios en la base de datos
       await queryRunner.commitTransaction();
 
-      // ---------------------------------------------------
-      // 8. RETORNAR RESPUESTA AL FRONTEND
-      // ---------------------------------------------------
       return {
         ...pedidoGuardado,     
         total: totalCalculado, 
@@ -202,8 +216,14 @@ export class PedidosService {
       };
 
     } catch (error) {
+      // Si algo falla (ej. stock insuficiente), deshacemos todo
       console.error('Error creando pedido:', error);
       await queryRunner.rollbackTransaction();
+      
+      // Si el error es de stock, lo enviamos tal cual al usuario
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+          throw error;
+      }
       throw new InternalServerErrorException('Error al procesar el pedido y facturación');
     } finally {
       await queryRunner.release();
@@ -211,7 +231,7 @@ export class PedidosService {
   }
 
   // =================================================================================
-  // MÉTODOS ESTÁNDAR (CRUD)
+  // MÉTODOS CRUD ESTÁNDAR
   // =================================================================================
 
   getPedidos() {
