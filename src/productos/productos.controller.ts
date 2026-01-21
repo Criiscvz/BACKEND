@@ -35,13 +35,6 @@ export class ProductosController {
     }
     // --------------------------------------------
 
-    // --- AGREGAR ESTO: Conversión de Activo ---
-    if (createProductoDto.activo !== undefined) {
-        // Convertimos el string "true"/"false" a booleano real
-        createProductoDto.activo = String(createProductoDto.activo) === 'true';
-    }
-    // ------------------------------------------
-
     // Valores por defecto
     if (!createProductoDto.fechaElaboracion) createProductoDto.fechaElaboracion = new Date();
     createProductoDto.usuarioCreaId = 1; // Asumiendo ID 1 por ahora
@@ -89,12 +82,6 @@ export class ProductosController {
        }
     }
     // -------------------------------------------------------
-
-    // --- AGREGAR ESTO TAMBIÉN EN EL UPDATE ---
-    if (updateProductoDto.activo !== undefined) {
-        updateProductoDto.activo = String(updateProductoDto.activo) === 'true';
-    }
-    // -----------------------------------------
 
     // Conversiones
     if (updateProductoDto.precio) updateProductoDto.precio = Number(updateProductoDto.precio);

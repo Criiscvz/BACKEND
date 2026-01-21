@@ -48,9 +48,6 @@ export class CreateProductoDto {
   @IsOptional()
   fechaElaboracion?: Date;
 
-  @IsOptional()
-  activo?: boolean; // Aceptamos que nos envíen true/false
-
   // --- AGREGAR ESTO PARA CORREGIR EL ERROR ROJO ---
   @IsOptional()
   variantes?: any; 

@@ -20,10 +20,7 @@ async function bootstrap() {
   //los cors son politicas de seguridad que restringen las solicitudes HTTP entre diferentes dominios
   //app.enableCors(); //habilita cors para cualquier origen (no recomendado en produccion)
   app.enableCors({
-    origin: [
-      'http://localhost:5173', 
-      'https://proyectoapp2.netlify.app' // url de la aplicacion frontend ya desplegada
-    ],
+    origin: 'http://localhost:5173',
     credentials: true
   });
 

@@ -12,13 +12,9 @@ export class Factura {
   @Column({ name: 'pedido_id', unique: true })
   pedidoId: number;
 
-  // --- ACTUALIZACIÓN AQUÍ ---
-  // Agregamos { onDelete: 'CASCADE' }
-  // Si se elimina el Pedido, la Factura también se elimina para no dejar basura en la BD.
-  @OneToOne(() => Pedido, (pedido) => pedido.factura, { onDelete: 'CASCADE' })
+  @OneToOne(() => Pedido, (pedido) => pedido.factura)
   @JoinColumn({ name: 'pedido_id' })
   pedido: Pedido;
-  // --------------------------
 
   @CreateDateColumn({ name: 'fecha_emision', type: 'timestamp' })
   fechaEmision: Date;
@@ -51,7 +47,7 @@ export class Factura {
   @Column({ name: 'usuario_actualiza_id', nullable: true })
   usuarioActualizaId: number;
 
-  @OneToMany(() => DetalleFactura, (detalle) => detalle.factura, { cascade: true })
+  @OneToMany(() => DetalleFactura, (detalle) => detalle.factura)
   detalles: DetalleFactura[];
 
   @OneToMany(() => Devolucion, (devolucion) => devolucion.factura)
