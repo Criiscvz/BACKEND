@@ -1,0 +1,101 @@
+name: innova-arte
+
+services:
+  db_primary:
+    image: postgres:16-alpine
+    container_name: db_primary
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_primary_data:/var/lib/postgresql/data
+    networks:
+      - app_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  db_mirror:
+    image: postgres:16-alpine
+    container_name: db_mirror
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_mirror_data:/var/lib/postgresql/data
+    networks:
+      - app_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Simulación de sincronización (pg_dump -> restore)
+  db_sync:
+    image: postgres:16-alpine
+    container_name: db_sync
+    depends_on:
+      db_primary:
+        condition: service_healthy
+      db_mirror:
+        condition: service_healthy
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+    volumes:
+      - ./db-sync/sync.sh:/sync.sh:ro
+    entrypoint: ["sh", "/sync.sh"]
+    networks:
+      - app_net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    depends_on:
+      db_primary:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    environment:
+      DB_HOST: db_primary
+      DB_PORT: 5432
+    ports:
+      - "3000:3000"
+    volumes:
+      - backend_uploads:/app/uploads
+    networks:
+      - app_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    container_name: frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    networks:
+      - app_net
+
+networks:
+  app_net:
+
+volumes:
+  pg_primary_data:
+  pg_mirror_data:
+  backend_uploads:
